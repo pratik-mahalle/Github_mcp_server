@@ -1,23 +1,16 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use a Python base image that is compatible with AWS Lambda
+FROM public.ecr.aws/lambda/python:3.12
 
-# Set the working directory in the container
+# Working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Copy the application code
+COPY app.py /app/
+COPY utils/ /app/utils/
+COPY requirements.txt /app/
 
-# Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install the required Python packages
+RUN pip install -r requirements.txt --no-cache-dir
 
-# Copy the rest of the application code into the container
-COPY . .
-
-# Expose the port your application runs on (if applicable)
-EXPOSE 5000
-
-# Set environment variables (optional, if needed)
-ENV PYTHONUNBUFFERED=1
-
-# Run the application
-CMD ["python", "app.py"]
+# Set the entrypoint for the Lambda function
+CMD ["app.webhook_handler"]
